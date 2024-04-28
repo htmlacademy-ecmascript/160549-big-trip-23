@@ -1,7 +1,7 @@
 # Проект «Большое путешествие»
 
-* Студент: [Mansur Baysarov](https://up.htmlacademy.ru/ecmascript/23/user/160549).
-* Наставник: `Неизвестно`.
+- Студент: [Mansur Baysarov](https://up.htmlacademy.ru/ecmascript/23/user/160549).
+- Наставник: `Олег Глущенко`.
 
 ---
 
