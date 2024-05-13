@@ -1,15 +1,15 @@
 import {createElement} from '../render';
 
-function createEventsListTemplate() {
+function createPointsListTemplate() {
   return (
     `<ul class="trip-events__list">
     </ul>`
   );
 }
 
-export default class EventsListView {
+export default class PointsListView {
   getTemplate() {
-    return createEventsListTemplate();
+    return createPointsListTemplate();
   }
 
   getElement() {
