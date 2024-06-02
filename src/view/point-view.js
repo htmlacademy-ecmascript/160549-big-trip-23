@@ -1,30 +1,35 @@
 import {createElement} from '../render';
-import {getFormattedDate} from '../utils/getFormattedDate';
-import {getDurationTime} from '../utils/getDurationTime';
-import {getDateTime} from '../utils/getDateTime';
+import {getDurationTime, getTime, getDayMonth, getFullDate} from '../utils/formatDate';
 
-function createPointTemplate(point, destination, offers) {
+function createPointTemplate(point, destinations, offers) {
   const {basePrice, dateFrom, dateTo, isFavorite, type} = point;
-  const pointDate = getFormattedDate(dateFrom);
+
+  const pointDate = getDayMonth(dateFrom);
   const duration = getDurationTime(dateFrom, dateTo);
-  const timeFrom = getDateTime(dateFrom);
-  const timeTo = getDateTime(dateTo);
+  const [timeFrom, timeTo] = [getTime(dateFrom), getTime(dateTo)];
+
+  const currentTypeOffers = offers.find((offer) => offer.type === type)?.offers;
+  const pointOffersIds = new Set(point.offers);
+  const pointOffers = currentTypeOffers.filter((offer) => pointOffersIds.has(offer.id));
+
+  const pointDestination = destinations.find((destination) => destination.id === point.destination);
+  const {name} = pointDestination;
+
   const favoriteClassName = isFavorite ? 'event__favorite-btn--active' : '';
-  const {name} = destination;
 
   return (
     `<li class="trip-events__item">
       <div class="event">
-        <time class="event__date" datetime="2019-03-18">${pointDate}</time>
+        <time class="event__date" datetime="${getFullDate(dateFrom)}">${pointDate}</time>
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
         </div>
         <h3 class="event__title">${type} ${name}</h3>
         <div class="event__schedule">
           <p class="event__time">
-            <time class="event__start-time" datetime="2019-03-18T10:30">${timeFrom}</time>
+            <time class="event__start-time" datetime="${dateFrom}">${timeFrom}</time>
             &mdash;
-            <time class="event__end-time" datetime="2019-03-18T11:00">${timeTo}</time>
+            <time class="event__end-time" datetime="${dateTo}">${timeTo}</time>
           </p>
           <p class="event__duration">${duration}</p>
         </div>
@@ -33,7 +38,7 @@ function createPointTemplate(point, destination, offers) {
         </p>
         <h4 class="visually-hidden">Offers:</h4>
         <ul class="event__selected-offers">
-          ${offers.map((offer) => `
+          ${pointOffers.map((offer) => `
             <li class="event__offer">
               <span class="event__offer-title">${offer.title}</span>
               &plus;&euro;&nbsp;
@@ -56,14 +61,14 @@ function createPointTemplate(point, destination, offers) {
 }
 
 export default class PointView {
-  constructor({point, destination, offers}) {
+  constructor({point, destinations, offers}) {
     this.point = point;
-    this.destination = destination;
+    this.destinations = destinations;
     this.offers = offers;
   }
 
   getTemplate() {
-    return createPointTemplate(this.point, this.destination, this.offers);
+    return createPointTemplate(this.point, this.destinations, this.offers);
   }
 
   getElement() {
