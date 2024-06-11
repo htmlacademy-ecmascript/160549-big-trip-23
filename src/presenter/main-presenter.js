@@ -1,9 +1,8 @@
-import {render} from '../framework/render';
+import {render, replace} from '../framework/render';
 import SortingView from '../view/sorting-view';
 import PointView from '../view/point-view';
 import EditingFormView from '../view/editing-form-view';
 import PointsListView from '../view/points-list-view';
-import {DEFAULT_POINT} from '../constants';
 
 export default class MainPresenter {
   #mainContainer = null;
@@ -24,14 +23,33 @@ export default class MainPresenter {
 
     render(this.#sortingComponent, this.#mainContainer);
     render(this.#pointsListComponent, this.#mainContainer);
-    render(new EditingFormView({point: DEFAULT_POINT, destinations, offers}), this.#pointsListComponent.element);
-    render(new EditingFormView({point: points[0], destinations, offers}), this.#pointsListComponent.element);
 
     points.forEach((point) => this.#renderTask({point, destinations, offers}));
   }
 
   #renderTask({point, destinations, offers}) {
-    const pointComponent = new PointView({point, destinations, offers});
+    const onEditClick = () => switchToEditMode();
+    const onFormClose = () => switchToViewMode();
+    const onFormSubmit = () => switchToViewMode();
+    const onEscapeKeydown = (event) => {
+      if (event.key === 'Escape') {
+        switchToViewMode();
+      }
+    };
+
+    const pointComponent = new PointView({point, destinations, offers, onEditClick});
+    const editingFormComponent = new EditingFormView({point, destinations, offers, onFormClose, onFormSubmit});
+
+    function switchToEditMode() {
+      replace(editingFormComponent, pointComponent);
+      document.addEventListener('keydown', onEscapeKeydown);
+    }
+
+    function switchToViewMode() {
+      replace(pointComponent, editingFormComponent);
+      document.removeEventListener('keydown', onEscapeKeydown);
+    }
+
     render(pointComponent, this.#pointsListComponent.element);
   }
 }
