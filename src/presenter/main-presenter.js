@@ -1,4 +1,4 @@
-import {render} from '../render';
+import {render} from '../framework/render';
 import SortingView from '../view/sorting-view';
 import PointView from '../view/point-view';
 import EditingFormView from '../view/editing-form-view';
@@ -21,11 +21,11 @@ export default class MainPresenter {
 
     render(this.sortingComponent, this.mainContainer);
     render(this.eventsListComponent, this.mainContainer);
-    render(new EditingFormView({point: defaultPoint, destinations, offers}), this.eventsListComponent.getElement());
-    render(new EditingFormView({point: points[0], destinations, offers}), this.eventsListComponent.getElement());
+    render(new EditingFormView({point: defaultPoint, destinations, offers}), this.eventsListComponent.element);
+    render(new EditingFormView({point: points[0], destinations, offers}), this.eventsListComponent.element);
 
     for (let i = 1; i < points.length; i++) {
-      render(new PointView({point: points[i], destinations, offers}), this.eventsListComponent.getElement());
+      render(new PointView({point: points[i], destinations, offers}), this.eventsListComponent.element);
     }
   }
 }
