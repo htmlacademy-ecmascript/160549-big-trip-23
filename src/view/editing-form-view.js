@@ -1,6 +1,6 @@
-import {createElement} from '../render';
 import {getFullDateTime} from '../utils/formatDate';
 import {makeFirstLetterInUpperCase} from '../utils/makeFirstLetterInUpperCase';
+import AbstractView from '../framework/view/abstract-view';
 
 function createEventTypeItem({id, type, isChecked = false}) {
   return `
@@ -123,25 +123,50 @@ function createCreationFormTemplate(point, destinations, offers) {
   );
 }
 
-export default class EditingFormView {
-  constructor({point, offers, destinations}) {
-    this.point = point;
-    this.destinations = destinations;
-    this.offers = offers;
+export default class EditingFormView extends AbstractView {
+  #point = null;
+  #destinations = null;
+  #offers = null;
+  #handleClose = null;
+  #handleSubmit = null;
+
+  #rollupButton = null;
+  #resetButton = null;
+
+  constructor({point, destinations, offers, onFormClose, onFormSubmit}) {
+    super();
+    this.#point = point;
+    this.#destinations = destinations;
+    this.#offers = offers;
+    this.#handleClose = onFormClose;
+    this.#handleSubmit = onFormSubmit;
+
+    this.#rollupButton = this.element.querySelector('.event__rollup-btn');
+    this.#resetButton = this.element.querySelector('.event__reset-btn');
+
+    this.element.addEventListener('submit', this.#onSubmit);
+    this.#rollupButton.addEventListener('click', this.#onClose);
+    this.#resetButton.addEventListener('click', this.#onClose);
   }
 
-  getTemplate() {
-    return createCreationFormTemplate(this.point, this.destinations, this.offers);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
+  get template() {
+    return createCreationFormTemplate(this.#point, this.#destinations, this.#offers);
   }
 
   removeElement() {
-    this.element = null;
+    super.removeElement();
+    this.element.removeEventListener('submit', this.#onSubmit);
+    this.#rollupButton.removeEventListener('click', this.#onClose);
+    this.#resetButton.removeEventListener('click', this.#onClose);
   }
+
+  #onClose = (event) => {
+    event.preventDefault();
+    this.#handleClose?.();
+  };
+
+  #onSubmit = (event) => {
+    event.preventDefault();
+    this.#handleSubmit?.();
+  };
 }

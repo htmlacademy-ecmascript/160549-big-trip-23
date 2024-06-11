@@ -3,25 +3,19 @@ import {mockDestinations} from '../mock/destinations';
 import {mockOffers} from '../mock/offers';
 
 export default class PointsModel {
-  points = [...mockPoints];
-  destinations = [...mockDestinations];
-  offers = [...mockOffers];
+  #points = [...mockPoints];
+  #destinations = [...mockDestinations];
+  #offers = [...mockOffers];
 
-  getPoints() {
-    return this.points;
+  get points() {
+    return this.#points;
   }
 
-  getDestinations() {
-    return this.destinations;
+  get destinations() {
+    return this.#destinations;
   }
 
-  getOffers() {
-    return this.offers;
-  }
-
-  getOffersByPointType(type, offers) {
-    const currentTypeOffers = this.offers.find((offer) => offer.type === type)?.offers;
-    const pointOffers = new Set(offers);
-    return currentTypeOffers.filter((offer) => pointOffers.has(offer.id));
+  get offers() {
+    return this.#offers;
   }
 }
