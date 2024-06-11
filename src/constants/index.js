@@ -1,4 +1,4 @@
-export const defaultPoint = {
+export const DEFAULT_POINT = {
   basePrice: 0,
   dateFrom: new Date().toISOString(),
   dateTo: new Date().toISOString(),
