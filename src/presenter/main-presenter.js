@@ -1,14 +1,18 @@
-import {render, replace} from '../framework/render';
+import {render} from '../framework/render';
 import SortingView from '../view/sorting-view';
-import PointView from '../view/point-view';
-import EditingFormView from '../view/editing-form-view';
+
 import PointsListView from '../view/points-list-view';
 import EmptyPointsListView from '../view/empty-points-list-view';
 import {EMPTY_FILTER_TYPES} from '../constants';
+import PointPresenter from './point-presenter';
 
 export default class MainPresenter {
   #mainContainer = null;
   #pointsModel = null;
+
+  #points = null;
+  #destinations = null;
+  #offers = null;
 
   #sortingComponent = new SortingView();
   #pointsListComponent = new PointsListView();
@@ -19,47 +23,39 @@ export default class MainPresenter {
   }
 
   init() {
-    const points = [...this.#pointsModel.points];
-    const destinations = [...this.#pointsModel.destinations];
-    const offers = [...this.#pointsModel.offers];
+    this.#points = [...this.#pointsModel.points];
+    this.#destinations = [...this.#pointsModel.destinations];
+    this.#offers = [...this.#pointsModel.offers];
 
-    this.#renderPointsList({points, destinations, offers});
+    this.#renderMain();
   }
 
-  #renderPointsList({points, destinations, offers}) {
-    if (!points.length) {
-      return render(new EmptyPointsListView({filter: EMPTY_FILTER_TYPES.Everything}), this.#mainContainer);
-    }
+  #renderPointsList() {
+    this.#points.forEach((point) => this.#renderPoint({point}));
+  }
 
+  #renderPoint({point}) {
+    const pointPresenter = new PointPresenter({pointsListContainer: this.#pointsListComponent.element});
+
+    pointPresenter.init(point, this.#destinations, this.#offers);
+  }
+
+  #renderNoPoints() {
+    render(new EmptyPointsListView({filter: EMPTY_FILTER_TYPES.Everything}), this.#mainContainer);
+  }
+
+  #renderSorting() {
     render(this.#sortingComponent, this.#mainContainer);
+  }
+
+  #renderMain() {
     render(this.#pointsListComponent, this.#mainContainer);
 
-    points.forEach((point) => this.#renderPoint({point, destinations, offers}));
-  }
-
-  #renderPoint({point, destinations, offers}) {
-    const onEditClick = () => switchToEditMode();
-    const onFormClose = () => switchToViewMode();
-    const onFormSubmit = () => switchToViewMode();
-    const onEscapeKeydown = (event) => {
-      if (event.key === 'Escape') {
-        switchToViewMode();
-      }
-    };
-
-    const pointComponent = new PointView({point, destinations, offers, onEditClick});
-    const editingFormComponent = new EditingFormView({point, destinations, offers, onFormClose, onFormSubmit});
-
-    function switchToEditMode() {
-      replace(editingFormComponent, pointComponent);
-      document.addEventListener('keydown', onEscapeKeydown);
+    if (!this.#points.length) {
+      return this.#renderNoPoints();
     }
 
-    function switchToViewMode() {
-      replace(pointComponent, editingFormComponent);
-      document.removeEventListener('keydown', onEscapeKeydown);
-    }
-
-    render(pointComponent, this.#pointsListComponent.element);
+    this.#renderSorting();
+    this.#renderPointsList();
   }
 }
