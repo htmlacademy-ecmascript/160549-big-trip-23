@@ -3,6 +3,8 @@ import SortingView from '../view/sorting-view';
 import PointView from '../view/point-view';
 import EditingFormView from '../view/editing-form-view';
 import PointsListView from '../view/points-list-view';
+import EmptyPointsListView from '../view/empty-points-list-view';
+import {EMPTY_FILTER_TYPES} from '../constants';
 
 export default class MainPresenter {
   #mainContainer = null;
@@ -21,13 +23,21 @@ export default class MainPresenter {
     const destinations = [...this.#pointsModel.destinations];
     const offers = [...this.#pointsModel.offers];
 
+    this.#renderPointsList({points, destinations, offers});
+  }
+
+  #renderPointsList({points, destinations, offers}) {
+    if (!points.length) {
+      return render(new EmptyPointsListView({filter: EMPTY_FILTER_TYPES.Everything}), this.#mainContainer);
+    }
+
     render(this.#sortingComponent, this.#mainContainer);
     render(this.#pointsListComponent, this.#mainContainer);
 
-    points.forEach((point) => this.#renderTask({point, destinations, offers}));
+    points.forEach((point) => this.#renderPoint({point, destinations, offers}));
   }
 
-  #renderTask({point, destinations, offers}) {
+  #renderPoint({point, destinations, offers}) {
     const onEditClick = () => switchToEditMode();
     const onFormClose = () => switchToViewMode();
     const onFormSubmit = () => switchToViewMode();
