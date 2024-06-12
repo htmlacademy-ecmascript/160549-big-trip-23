@@ -19,7 +19,7 @@ export default class MainPresenter {
   }
 
   init() {
-    const points = [];
+    const points = [...this.#pointsModel.points];
     const destinations = [...this.#pointsModel.destinations];
     const offers = [...this.#pointsModel.offers];
 
