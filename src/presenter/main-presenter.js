@@ -5,6 +5,7 @@ import PointsListView from '../view/points-list-view';
 import EmptyPointsListView from '../view/empty-points-list-view';
 import {EMPTY_FILTER_TYPES} from '../constants';
 import PointPresenter from './point-presenter';
+import {updateItem} from '../utils/common';
 
 export default class MainPresenter {
   #mainContainer = null;
@@ -16,6 +17,8 @@ export default class MainPresenter {
 
   #sortingComponent = new SortingView();
   #pointsListComponent = new PointsListView();
+
+  #pointPresenters = new Map();
 
   constructor({mainContainer, pointsModel}) {
     this.#mainContainer = mainContainer;
@@ -35,9 +38,10 @@ export default class MainPresenter {
   }
 
   #renderPoint({point}) {
-    const pointPresenter = new PointPresenter({pointsListContainer: this.#pointsListComponent.element});
+    const pointPresenter = new PointPresenter({pointsListContainer: this.#pointsListComponent.element, onChangePoint: this.#onChangePoint});
 
     pointPresenter.init(point, this.#destinations, this.#offers);
+    this.#pointPresenters.set(point.id, pointPresenter);
   }
 
   #renderNoPoints() {
@@ -58,4 +62,9 @@ export default class MainPresenter {
     this.#renderSorting();
     this.#renderPointsList();
   }
+
+  #onChangePoint = (point) => {
+    this.#points = updateItem(this.#points, point);
+    this.#pointPresenters.get(point.id).init(point, this.#destinations, this.#offers);
+  };
 }

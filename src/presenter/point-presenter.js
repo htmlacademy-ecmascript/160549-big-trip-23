@@ -1,4 +1,4 @@
-import {render, replace} from '../framework/render';
+import {render, replace, remove} from '../framework/render';
 import PointView from '../view/point-view';
 import EditingFormView from '../view/editing-form-view';
 
@@ -8,15 +8,40 @@ export default class PointPresenter {
   #pointComponent = null;
   #editingPointFormComponent = null;
 
-  constructor({pointsListContainer}) {
+  #point = null;
+  #onChangePoint = null;
+
+  constructor({pointsListContainer, onChangePoint}) {
     this.#pointsListContainer = pointsListContainer;
+    this.#onChangePoint = onChangePoint;
   }
 
   init(point, destinations, offers) {
-    this.#editingPointFormComponent = new EditingFormView({point, destinations, offers, onFormClose: this.#switchToViewMode, onFormSubmit: this.#switchToViewMode});
-    this.#pointComponent = new PointView({point, destinations, offers, onEditClick: this.#switchToEditMode});
+    this.#point = point;
 
-    render(this.#pointComponent, this.#pointsListContainer);
+    const prevPointComponent = this.#pointComponent;
+    const prevEditingPointFormComponent = this.#editingPointFormComponent;
+
+    this.#editingPointFormComponent = new EditingFormView({point, destinations, offers, onFormClose: this.#switchToViewMode, onFormSubmit: this.#switchToViewMode});
+    this.#pointComponent = new PointView({point, destinations, offers, onEditClick: this.#switchToEditMode, onToggleFavorite: this.#onFavoriteToggle});
+
+    if (prevPointComponent === null || prevEditingPointFormComponent === null) {
+      render(this.#pointComponent, this.#pointsListContainer);
+      return;
+    }
+
+    // Проверка на наличие в DOM
+    if (this.#pointsListContainer.contains(prevPointComponent.element)) {
+      replace(this.#pointComponent, prevPointComponent);
+    }
+
+    if (this.#pointsListContainer.contains(prevEditingPointFormComponent.element)) {
+      replace(this.#editingPointFormComponent, prevEditingPointFormComponent);
+    }
+
+    remove(prevPointComponent);
+    remove(prevEditingPointFormComponent);
+
   }
 
   #switchToEditMode = () => {
@@ -33,5 +58,9 @@ export default class PointPresenter {
     if (event.key === 'Escape') {
       this.#switchToViewMode();
     }
+  };
+
+  #onFavoriteToggle = () => {
+    this.#onChangePoint?.({...this.#point, isFavorite: !this.#point.isFavorite});
   };
 }
