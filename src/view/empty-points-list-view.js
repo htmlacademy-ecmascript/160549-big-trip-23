@@ -1,7 +1,7 @@
 import AbstractView from '../framework/view/abstract-view';
-import {EMPTY_FILTER_MESSAGES} from '../constants';
+import {EmptyFilterMessages} from '../constants';
 
-const createEmptyPointsListTemplate = (filter) => `<p class="trip-events__msg">${EMPTY_FILTER_MESSAGES[filter]}</p>`;
+const createEmptyPointsListTemplate = (filter) => `<p class="trip-events__msg">${EmptyFilterMessages[filter]}</p>`;
 
 export default class EmptyPointsListView extends AbstractView {
   #filter = null;
