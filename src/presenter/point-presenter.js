@@ -2,6 +2,11 @@ import {render, replace, remove} from '../framework/render';
 import PointView from '../view/point-view';
 import EditingFormView from '../view/editing-form-view';
 
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  EDITING:'EDITING'
+};
+
 export default class PointPresenter {
   #pointsListContainer = null;
 
@@ -9,11 +14,15 @@ export default class PointPresenter {
   #editingPointFormComponent = null;
 
   #point = null;
-  #onChangePoint = null;
+  #mode = Mode.DEFAULT;
 
-  constructor({pointsListContainer, onChangePoint}) {
+  #onPointChange = null;
+  #onModeChange = null;
+
+  constructor({pointsListContainer, onPointChange, onModeChange}) {
     this.#pointsListContainer = pointsListContainer;
-    this.#onChangePoint = onChangePoint;
+    this.#onPointChange = onPointChange;
+    this.#onModeChange = onModeChange;
   }
 
   init(point, destinations, offers) {
@@ -31,11 +40,11 @@ export default class PointPresenter {
     }
 
     // Проверка на наличие в DOM
-    if (this.#pointsListContainer.contains(prevPointComponent.element)) {
+    if (this.#mode === Mode.DEFAULT) {
       replace(this.#pointComponent, prevPointComponent);
     }
 
-    if (this.#pointsListContainer.contains(prevEditingPointFormComponent.element)) {
+    if (this.#mode === Mode.EDITING) {
       replace(this.#editingPointFormComponent, prevEditingPointFormComponent);
     }
 
@@ -44,14 +53,23 @@ export default class PointPresenter {
 
   }
 
+  resetView() {
+    if (this.#mode !== Mode.DEFAULT) {
+      this.#switchToViewMode();
+    }
+  }
+
   #switchToEditMode = () => {
     replace(this.#editingPointFormComponent, this.#pointComponent);
     document.addEventListener('keydown', this.#onEscapeKeydown);
+    this.#onModeChange?.();
+    this.#mode = Mode.EDITING;
   };
 
   #switchToViewMode = () => {
     replace(this.#pointComponent, this.#editingPointFormComponent);
     document.removeEventListener('keydown', this.#onEscapeKeydown);
+    this.#mode = Mode.DEFAULT;
   };
 
   #onEscapeKeydown = (event) => {
@@ -61,6 +79,6 @@ export default class PointPresenter {
   };
 
   #onFavoriteToggle = () => {
-    this.#onChangePoint?.({...this.#point, isFavorite: !this.#point.isFavorite});
+    this.#onPointChange?.({...this.#point, isFavorite: !this.#point.isFavorite});
   };
 }

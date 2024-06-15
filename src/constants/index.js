@@ -8,16 +8,16 @@ export const DEFAULT_POINT = {
   type: 'flight'
 };
 
-export const EMPTY_FILTER_TYPES = {
-  Everything: 'everything',
-  Past: 'past',
-  Present: 'present',
-  Future: 'future'
+export const FilterTypes = {
+  EVERYTHING: 'everything',
+  PAST: 'past',
+  PRESENT: 'present',
+  FUTURE: 'future'
 };
 
-export const EMPTY_FILTER_MESSAGES = {
-  [EMPTY_FILTER_TYPES.Everything]: 'Click New Event to create your first point',
-  [EMPTY_FILTER_TYPES.Past]: 'There are no past events now',
-  [EMPTY_FILTER_TYPES.Present]: 'There are no present events now',
-  [EMPTY_FILTER_TYPES.Future]: 'There are no future events now'
+export const EmptyFilterMessages = {
+  [FilterTypes.EVERYTHING]: 'Click New Event to create your first point',
+  [FilterTypes.PAST]: 'There are no past events now',
+  [FilterTypes.PRESENT]: 'There are no present events now',
+  [FilterTypes.FUTURE]: 'There are no future events now'
 };

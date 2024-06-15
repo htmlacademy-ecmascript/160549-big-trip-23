@@ -1,9 +1,9 @@
-import {render} from '../framework/render';
+import {render, RenderPosition} from '../framework/render';
 import SortingView from '../view/sorting-view';
 
 import PointsListView from '../view/points-list-view';
 import EmptyPointsListView from '../view/empty-points-list-view';
-import {EMPTY_FILTER_TYPES} from '../constants';
+import {FilterTypes} from '../constants';
 import PointPresenter from './point-presenter';
 import {updateItem} from '../utils/common';
 
@@ -38,18 +38,22 @@ export default class MainPresenter {
   }
 
   #renderPoint({point}) {
-    const pointPresenter = new PointPresenter({pointsListContainer: this.#pointsListComponent.element, onChangePoint: this.#onChangePoint});
+    const pointPresenter = new PointPresenter({
+      pointsListContainer: this.#pointsListComponent.element,
+      onPointChange: this.#onPointChange,
+      onModeChange: this.#onModeChange
+    });
 
     pointPresenter.init(point, this.#destinations, this.#offers);
     this.#pointPresenters.set(point.id, pointPresenter);
   }
 
   #renderNoPoints() {
-    render(new EmptyPointsListView({filter: EMPTY_FILTER_TYPES.Everything}), this.#mainContainer);
+    render(new EmptyPointsListView({filter: FilterTypes.EVERYTHING}), this.#mainContainer);
   }
 
   #renderSorting() {
-    render(this.#sortingComponent, this.#mainContainer);
+    render(this.#sortingComponent, this.#mainContainer, RenderPosition.AFTERBEGIN);
   }
 
   #renderMain() {
@@ -63,8 +67,12 @@ export default class MainPresenter {
     this.#renderPointsList();
   }
 
-  #onChangePoint = (point) => {
+  #onPointChange = (point) => {
     this.#points = updateItem(this.#points, point);
     this.#pointPresenters.get(point.id).init(point, this.#destinations, this.#offers);
+  };
+
+  #onModeChange = () => {
+    this.#pointPresenters.forEach((presenter) => presenter.resetView());
   };
 }
