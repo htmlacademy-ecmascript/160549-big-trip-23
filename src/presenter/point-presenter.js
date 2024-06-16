@@ -53,6 +53,11 @@ export default class PointPresenter {
 
   }
 
+  destroy() {
+    remove(this.#pointComponent);
+    remove(this.#editingPointFormComponent);
+  }
+
   resetView() {
     if (this.#mode !== Mode.DEFAULT) {
       this.#switchToViewMode();

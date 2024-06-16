@@ -3,9 +3,10 @@ import SortingView from '../view/sorting-view';
 
 import PointsListView from '../view/points-list-view';
 import EmptyPointsListView from '../view/empty-points-list-view';
-import {FilterTypes} from '../constants';
+import {FilterTypes, SortType} from '../constants';
 import PointPresenter from './point-presenter';
 import {updateItem} from '../utils/common';
+import {sortPointsByType} from '../utils/point';
 
 export default class MainPresenter {
   #mainContainer = null;
@@ -14,8 +15,9 @@ export default class MainPresenter {
   #points = null;
   #destinations = null;
   #offers = null;
+  #activeSortType = SortType.DAY;
 
-  #sortingComponent = new SortingView();
+  #sortingComponent = null;
   #pointsListComponent = new PointsListView();
 
   #pointPresenters = new Map();
@@ -26,7 +28,7 @@ export default class MainPresenter {
   }
 
   init() {
-    this.#points = [...this.#pointsModel.points];
+    this.#points = sortPointsByType(this.#pointsModel.points, this.#activeSortType);
     this.#destinations = [...this.#pointsModel.destinations];
     this.#offers = [...this.#pointsModel.offers];
 
@@ -35,6 +37,11 @@ export default class MainPresenter {
 
   #renderPointsList() {
     this.#points.forEach((point) => this.#renderPoint({point}));
+  }
+
+  #clearTaskList() {
+    this.#pointPresenters.forEach((presenter) => presenter.destroy());
+    this.#pointPresenters.clear();
   }
 
   #renderPoint({point}) {
@@ -53,6 +60,7 @@ export default class MainPresenter {
   }
 
   #renderSorting() {
+    this.#sortingComponent = new SortingView({sortType: this.#activeSortType, onSortTypeChange: this.#onSortTypeChange});
     render(this.#sortingComponent, this.#mainContainer, RenderPosition.AFTERBEGIN);
   }
 
@@ -74,5 +82,19 @@ export default class MainPresenter {
 
   #onModeChange = () => {
     this.#pointPresenters.forEach((presenter) => presenter.resetView());
+  };
+
+  #onSortTypeChange = (value) => {
+    if (this.#activeSortType === value) {
+      return;
+    }
+    this.#sortPoints(value);
+    this.#clearTaskList();
+    this.#renderPointsList();
+  };
+
+  #sortPoints = (value) => {
+    sortPointsByType(this.#points, value);
+    this.#activeSortType = value;
   };
 }

@@ -28,6 +28,10 @@ const getDurationTime = (startDate, endDate) => {
   return `${formattedDays} ${formattedHours} ${formattedMinutes}`;
 };
 
+const isDateAfter = (date1, date2) => dayjs(date1).isAfter(dayjs(date2));
+
+const getDateDiff = (date1, date2) => dayjs(date1).diff(date2);
+
 export {
-  getFullDate, getFullDateTime, getDayMonth, getTime, getDurationTime
+  getFullDate, getFullDateTime, getDayMonth, getTime, getDurationTime, isDateAfter, getDateDiff
 };
