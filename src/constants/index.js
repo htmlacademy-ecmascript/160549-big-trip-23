@@ -21,3 +21,11 @@ export const EmptyFilterMessages = {
   [FilterTypes.PRESENT]: 'There are no present events now',
   [FilterTypes.FUTURE]: 'There are no future events now'
 };
+
+export const SortType = {
+  DAY: 'day',
+  EVENT: 'event',
+  TIME: 'time',
+  PRICE: 'price',
+  OFFERS: 'offers',
+};

@@ -3,7 +3,7 @@ export const mockPoints = [
     id: '1',
     basePrice: 1100,
     dateFrom: '2019-07-10T09:22:56.845Z',
-    dateTo: '2019-07-10T11:22:56.845Z',
+    dateTo: '2019-07-10T14:22:56.845Z',
     destination: '2',
     isFavorite: false,
     offers: ['2','3'],
@@ -48,15 +48,5 @@ export const mockPoints = [
     isFavorite: false,
     offers: ['1','2'],
     type: 'drive'
-  },
-  {
-    id: '6',
-    basePrice: 115,
-    dateFrom: '2019-07-10T10:22:56.845Z',
-    dateTo: '2019-07-10T11:02:56.845Z',
-    destination: '1',
-    isFavorite: false,
-    offers: ['1','2'],
-    type: 'taxi'
   },
 ];
