@@ -31,7 +31,12 @@ export default class PointPresenter {
     const prevPointComponent = this.#pointComponent;
     const prevEditingPointFormComponent = this.#editingPointFormComponent;
 
-    this.#editingPointFormComponent = new EditingFormView({point, destinations, offers, onFormClose: this.#switchToViewMode, onFormSubmit: this.#switchToViewMode});
+    this.#editingPointFormComponent = new EditingFormView({
+      point,
+      destinations,
+      offers,
+      onFormClose: this.#switchToViewMode,
+      onFormSubmit: this.#switchToViewMode});
     this.#pointComponent = new PointView({point, destinations, offers, onEditClick: this.#switchToEditMode, onToggleFavorite: this.#onFavoriteToggle});
 
     if (prevPointComponent === null || prevEditingPointFormComponent === null) {
@@ -60,6 +65,7 @@ export default class PointPresenter {
 
   resetView() {
     if (this.#mode !== Mode.DEFAULT) {
+      this.#editingPointFormComponent.reset(this.#point);
       this.#switchToViewMode();
     }
   }
@@ -79,6 +85,7 @@ export default class PointPresenter {
 
   #onEscapeKeydown = (event) => {
     if (event.key === 'Escape') {
+      this.#editingPointFormComponent.reset(this.#point);
       this.#switchToViewMode();
     }
   };

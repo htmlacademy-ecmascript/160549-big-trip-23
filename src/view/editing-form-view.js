@@ -1,6 +1,6 @@
 import {getFullDateTime} from '../utils/formatDate';
 import {makeFirstLetterInUpperCase} from '../utils/makeFirstLetterInUpperCase';
-import AbstractView from '../framework/view/abstract-view';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 
 function createEventTypeItem({id, type, isChecked = false}) {
   return `
@@ -11,8 +11,8 @@ function createEventTypeItem({id, type, isChecked = false}) {
   `;
 }
 
-function createDestinationOption(value) {
-  return `<option value="${value}"></option>`;
+function createDestinationOption(name) {
+  return `<option value="${name}"></option>`;
 }
 
 function createDestinationPicture(picture) {
@@ -31,13 +31,11 @@ function createOfferSelector(offer, isChecked = false) {
     </div>
   `;
 }
-function createCreationFormTemplate(point, destinations, offers) {
-  const {basePrice, type, dateFrom, dateTo} = point;
-  const pointTypeOffers = offers.find((offer) => offer.type === type).offers;
-  const pointId = point.id || '0';
+function createCreationFormTemplate(point, allDestinations, allOffers) {
+  const {id, basePrice, type, dateFrom, dateTo, typeOffers, destination} = point;
+  const {name: destinationName = '', description: destinationDescription = '', pictures} = destination;
 
-  const pointDestination = destinations.find((destination) => destination.id === point.destination) || {};
-  const {name: destinationName = '', description: destinationDescription = '', pictures} = pointDestination;
+  const pointId = id || '0';
 
   return (
     `<li class="trip-events__item">
@@ -53,7 +51,7 @@ function createCreationFormTemplate(point, destinations, offers) {
             <div class="event__type-list">
               <fieldset class="event__type-group">
                 <legend class="visually-hidden">Event type</legend>
-                ${offers.map((offer) => createEventTypeItem({id: pointId, type: offer.type, isChecked: offer.type === type})).join('')}
+                ${allOffers.map((offer) => createEventTypeItem({id: pointId, type: offer.type, isChecked: offer.type === type})).join('')}
               </fieldset>
             </div>
           </div>
@@ -64,7 +62,7 @@ function createCreationFormTemplate(point, destinations, offers) {
             </label>
             <input class="event__input  event__input--destination" id="event-destination-${pointId}" type="text" name="event-destination" value="${destinationName}" list="destination-list-${pointId}">
             <datalist id="destination-list-${pointId}">
-              ${destinations.map((destination) => createDestinationOption(destination.name)).join('')}
+              ${allDestinations.map(({name}) => createDestinationOption(name)).join('')}
             </datalist>
           </div>
 
@@ -93,12 +91,12 @@ function createCreationFormTemplate(point, destinations, offers) {
       : ''}
         </header>
         <section class="event__details">
-      ${pointTypeOffers ?
+      ${typeOffers.length ?
       (`<section class="event__section  event__section--offers">
           <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
           <div class="event__available-offers">
-            ${pointTypeOffers.map((offer) => createOfferSelector(offer, point.offers.includes(offer.id))).join('')}
+            ${typeOffers.map((offer) => createOfferSelector(offer, point.offers.includes(offer.id))).join('')}
           </div>
         </section>`)
       : ''}
@@ -123,41 +121,39 @@ function createCreationFormTemplate(point, destinations, offers) {
   );
 }
 
-export default class EditingFormView extends AbstractView {
-  #point = null;
+export default class EditingFormView extends AbstractStatefulView {
   #destinations = null;
   #offers = null;
   #handleClose = null;
   #handleSubmit = null;
 
-  #rollupButton = null;
-  #resetButton = null;
-
   constructor({point, destinations, offers, onFormClose, onFormSubmit}) {
     super();
-    this.#point = point;
+    this._setState(EditingFormView.parsePointToState(point, destinations, offers));
+
     this.#destinations = destinations;
     this.#offers = offers;
+
     this.#handleClose = onFormClose;
     this.#handleSubmit = onFormSubmit;
 
-    this.#rollupButton = this.element.querySelector('.event__rollup-btn');
-    this.#resetButton = this.element.querySelector('.event__reset-btn');
-
-    this.element.addEventListener('submit', this.#onSubmit);
-    this.#rollupButton.addEventListener('click', this.#onClose);
-    this.#resetButton.addEventListener('click', this.#onClose);
+    this._restoreHandlers();
   }
 
   get template() {
-    return createCreationFormTemplate(this.#point, this.#destinations, this.#offers);
+    return createCreationFormTemplate(this._state, this.#destinations, this.#offers);
   }
 
-  removeElement() {
-    super.removeElement();
-    this.element.removeEventListener('submit', this.#onSubmit);
-    this.#rollupButton.removeEventListener('click', this.#onClose);
-    this.#resetButton.removeEventListener('click', this.#onClose);
+  _restoreHandlers() {
+    this.element.querySelector('form').addEventListener('submit', this.#onSubmit);
+    this.element.querySelector('fieldset').addEventListener('change', this.#onPointTypeChange);
+    this.element.querySelector('.event__input').addEventListener('change', this.#onDestinationChange);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#onClose);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#onClose);
+  }
+
+  reset(point) {
+    this.updateElement(EditingFormView.parsePointToState(point));
   }
 
   #onClose = (event) => {
@@ -167,6 +163,41 @@ export default class EditingFormView extends AbstractView {
 
   #onSubmit = (event) => {
     event.preventDefault();
-    this.#handleSubmit?.();
+    this.#handleSubmit?.(EditingFormView.parseStateToPoint(this._state));
   };
+
+  #onPointTypeChange = (event) => {
+    event.preventDefault();
+    const pointType = event.target.value;
+
+    this.updateElement({
+      type: event.target.value,
+      typeOffers: this.#offers.find((offer) => offer.type === pointType)?.offers || []
+    });
+  };
+
+  #onDestinationChange = (event) => {
+    event.preventDefault();
+    const destinationName = event.target.value;
+
+    this.updateElement({
+      destination: this.#destinations.find((destination) => destination.name === destinationName) || {}
+    });
+  };
+
+  static parsePointToState(point, destinations, offers) {
+    return {
+      ...point,
+      destination: destinations.find((destination) => destination.id === point.destination) || {},
+      typeOffers: offers.find((offer) => offer.type === point.type)?.offers || [],
+    };
+  }
+
+  static parseStateToPoint(state) {
+    state.destination = state.destination.id;
+
+    delete state.typeOffers;
+
+    return state;
+  }
 }
