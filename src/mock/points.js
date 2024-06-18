@@ -16,7 +16,7 @@ export const mockPoints = [
     dateTo: '2019-07-12T04:53:13.375Z',
     destination: '3',
     isFavorite: true,
-    offers: ['2','3','4'],
+    offers: ['12','10'],
     type: 'flight'
   },
   {
@@ -26,7 +26,7 @@ export const mockPoints = [
     dateTo: '2019-08-13T23:22:56.845Z',
     destination: '1',
     isFavorite: false,
-    offers: ['1','2','3'],
+    offers: ['8'],
     type: 'train'
   },
   {
@@ -36,7 +36,7 @@ export const mockPoints = [
     dateTo: '2019-08-13T01:52:56.845Z',
     destination: '2',
     isFavorite: true,
-    offers: ['2'],
+    offers: ['13'],
     type: 'check-in'
   },
   {
@@ -46,7 +46,17 @@ export const mockPoints = [
     dateTo: '2019-07-10T11:22:56.845Z',
     destination: '1',
     isFavorite: false,
-    offers: ['1','2'],
+    offers: [],
     type: 'drive'
+  },
+  {
+    id: '6',
+    basePrice: 20,
+    dateFrom: '2019-07-10T09:59:56.845Z',
+    dateTo: '2019-07-10T11:22:56.845Z',
+    destination: '3',
+    isFavorite: false,
+    offers: [],
+    type: 'bus'
   },
 ];

@@ -23,12 +23,12 @@ export const mockOffers = [
     type: 'drive',
     offers: [
       {
-        id: '1',
+        id: '5',
         title: 'Upgrade car',
         price: 210,
       },
       {
-        id: '2',
+        id: '6',
         title: 'Life insurance',
         price: 10,
       },
@@ -38,12 +38,12 @@ export const mockOffers = [
     type: 'train',
     offers: [
       {
-        id: '1',
+        id: '7',
         title: 'Upgrade to recumbent place',
         price: 90,
       },
       {
-        id: '2',
+        id: '8',
         title: 'Choose seats',
         price: 20,
       },
@@ -53,22 +53,22 @@ export const mockOffers = [
     type: 'flight',
     offers: [
       {
-        id: '1',
+        id: '9',
         title: 'Upgrade to a business class',
         price: 120,
       },
       {
-        id: '2',
+        id: '10',
         title: 'Add dinner',
         price: 12,
       },
       {
-        id: '3',
+        id: '11',
         title: 'Add luggage',
         price: 25,
       },
       {
-        id: '4',
+        id: '12',
         title: 'Seats at the porthole',
         price: 18,
       },
@@ -78,15 +78,19 @@ export const mockOffers = [
     type: 'check-in',
     offers: [
       {
-        id: '1',
+        id: '13',
         title: 'Room with sea view',
         price: 120,
       },
       {
-        id: '2',
+        id: '14',
         title: 'Breakfast in bed',
         price: 20,
       },
     ]
+  },
+  {
+    type: 'bus',
+    offers: []
   },
 ];
