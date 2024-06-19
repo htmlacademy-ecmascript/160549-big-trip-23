@@ -3,7 +3,7 @@ import SortingView from '../view/sorting-view';
 
 import PointsListView from '../view/points-list-view';
 import EmptyPointsListView from '../view/empty-points-list-view';
-import {FilterTypes, SortType} from '../constants';
+import {FilterType, SortType} from '../constants';
 import PointPresenter from './point-presenter';
 import {updateItem} from '../utils/common';
 import {sortPointsByType} from '../utils/point';
@@ -56,7 +56,7 @@ export default class MainPresenter {
   }
 
   #renderNoPoints() {
-    render(new EmptyPointsListView({filter: FilterTypes.EVERYTHING}), this.#mainContainer);
+    render(new EmptyPointsListView({filter: FilterType.EVERYTHING}), this.#mainContainer);
   }
 
   #renderSorting() {

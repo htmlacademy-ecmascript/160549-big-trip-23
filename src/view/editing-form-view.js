@@ -1,6 +1,8 @@
 import {getFullDateTime} from '../utils/formatDate';
 import {makeFirstLetterInUpperCase} from '../utils/makeFirstLetterInUpperCase';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
 
 function createEventTypeItem({id, type, isChecked = false}) {
   return `
@@ -124,6 +126,7 @@ function createCreationFormTemplate(point, allDestinations, allOffers) {
 export default class EditingFormView extends AbstractStatefulView {
   #destinations = null;
   #offers = null;
+  #datepicker = null;
   #handleClose = null;
   #handleSubmit = null;
 
@@ -150,6 +153,17 @@ export default class EditingFormView extends AbstractStatefulView {
     this.element.querySelector('.event__input').addEventListener('change', this.#onDestinationChange);
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#onClose);
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#onClose);
+
+    this.#setDatepickerFrom();
+    this.#setDatepickerTo();
+  }
+
+  removeElement() {
+    super.removeElement();
+    if (this.#datepicker) {
+      this.#datepicker.destroy();
+      this.#datepicker = null;
+    }
   }
 
   reset(point) {
@@ -183,6 +197,45 @@ export default class EditingFormView extends AbstractStatefulView {
     this.updateElement({
       destination: this.#destinations.find((destination) => destination.name === destinationName) || {}
     });
+  };
+
+  #onDateFromChange = ([dateFrom]) => {
+    this.updateElement({
+      dateFrom: dateFrom.toISOString(),
+    });
+  };
+
+  #onDateToChange = ([dateTo]) => {
+    this.updateElement({
+      dateTo: dateTo.toISOString(),
+    });
+  };
+
+  #setDatepickerFrom = () => {
+    this.#datepicker = flatpickr(
+      this.element.querySelector('[name="event-start-time"]'),
+      {
+        dateFrom: this._state.dateFrom,
+        dateFormat: 'd/m/y h:i',
+        enableTime: true,
+        'time_24hr': true,
+        onChange: this.#onDateFromChange,
+      }
+    );
+  };
+
+  #setDatepickerTo = () => {
+    this.#datepicker = flatpickr(
+      this.element.querySelector('[name="event-end-time"]'),
+      {
+        minDate: this._state.dateFrom,
+        dateFrom: this._state.dateTo,
+        dateFormat: 'd/m/y h:i',
+        enableTime: true,
+        'time_24hr': true,
+        onChange: this.#onDateToChange,
+      }
+    );
   };
 
   static parsePointToState(point, destinations, offers) {
