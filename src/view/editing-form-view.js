@@ -34,7 +34,7 @@ function createOfferSelector(offer, isChecked = false) {
   `;
 }
 function createCreationFormTemplate(point, allDestinations, allOffers) {
-  const {id, basePrice, type, dateFrom, dateTo, typeOffers, destination} = point;
+  const {id, basePrice, type, dateFrom, dateTo, typeOffers = [], destination} = point;
   const {name: destinationName = '', description: destinationDescription = '', pictures} = destination;
 
   const pointId = id || '0';
@@ -186,7 +186,7 @@ export default class EditingFormView extends AbstractStatefulView {
 
     this.updateElement({
       type: event.target.value,
-      typeOffers: this.#offers.find((offer) => offer.type === pointType)?.offers || []
+      typeOffers: this.#offers?.find((offer) => offer.type === pointType)?.offers || []
     });
   };
 
@@ -195,7 +195,7 @@ export default class EditingFormView extends AbstractStatefulView {
     const destinationName = event.target.value;
 
     this.updateElement({
-      destination: this.#destinations.find((destination) => destination.name === destinationName) || {}
+      destination: this.#destinations?.find((destination) => destination.name === destinationName) || {}
     });
   };
 
