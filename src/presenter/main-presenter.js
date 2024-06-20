@@ -3,13 +3,15 @@ import SortingView from '../view/sorting-view';
 
 import PointsListView from '../view/points-list-view';
 import EmptyPointsListView from '../view/empty-points-list-view';
-import {FilterType, SortType, UpdateType, UserAction} from '../constants';
+import {SortType, UpdateType, UserAction} from '../constants';
 import PointPresenter from './point-presenter';
 import {sortPointsByType} from '../utils/point';
+import {filter} from '../utils/filter';
 
 export default class MainPresenter {
   #mainContainer = null;
   #pointsModel = null;
+  #filterModel = null;
 
   #activeSortType = SortType.DAY;
 
@@ -19,15 +21,21 @@ export default class MainPresenter {
 
   #pointPresenters = new Map();
 
-  constructor({mainContainer, pointsModel}) {
+  constructor({mainContainer, pointsModel, filterModel}) {
     this.#mainContainer = mainContainer;
     this.#pointsModel = pointsModel;
+    this.#filterModel = filterModel;
 
     this.#pointsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   get points() {
-    return sortPointsByType(this.#pointsModel.points, this.#activeSortType);
+    const filterType = this.#filterModel.filter;
+    const points = this.#pointsModel.points;
+    const filteredPoints = filter[filterType](points);
+
+    return sortPointsByType(filteredPoints, this.#activeSortType);
   }
 
   get offers() {
@@ -59,7 +67,7 @@ export default class MainPresenter {
   }
 
   #renderNoPoints() {
-    this.#emptyPointsListComponent = new EmptyPointsListView({filter: FilterType.EVERYTHING});
+    this.#emptyPointsListComponent = new EmptyPointsListView({filter: this.#filterModel.filter});
     render(this.#emptyPointsListComponent, this.#mainContainer);
   }
 
@@ -115,7 +123,7 @@ export default class MainPresenter {
         this.#renderMain();
         break;
       case UpdateType.MAJOR:
-        this.#clearMain();
+        this.#clearMain({resetFilterType: true, resetSortType: true});
         this.#renderMain();
         break;
     }

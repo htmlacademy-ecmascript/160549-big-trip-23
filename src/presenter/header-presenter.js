@@ -1,16 +1,16 @@
-import {render} from '../framework/render';
-import FiltersView from '../view/filters-view';
+import {render, RenderPosition} from '../framework/render';
+import HeaderView from '../view/header-view';
 
 export default class HeaderPresenter {
   #headerContainer = null;
 
-  #filtersComponent = new FiltersView();
+  #headerInfoComponent = new HeaderView();
 
   constructor({headerContainer}) {
     this.#headerContainer = headerContainer;
   }
 
   init() {
-    render(this.#filtersComponent, this.#headerContainer);
+    render(this.#headerInfoComponent, this.#headerContainer, RenderPosition.AFTERBEGIN);
   }
 }
