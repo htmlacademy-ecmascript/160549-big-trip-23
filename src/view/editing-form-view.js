@@ -25,8 +25,8 @@ function createDestinationPicture(picture) {
 function createOfferSelector(offer, isChecked = false) {
   return `
     <div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage" ${isChecked && 'checked'}>
-      <label class="event__offer-label" for="event-offer-luggage-1">
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${offer.id}" data-offer-id="${offer.id}" type="checkbox" name="event-offer-luggage" ${isChecked && 'checked'}>
+      <label class="event__offer-label" for="event-offer-luggage-${offer.id}">
         <span class="event__offer-title">${offer.title}</span>
         &plus;&euro;&nbsp;
         <span class="event__offer-price">${offer.price}</span>
@@ -158,6 +158,10 @@ export default class EditingFormView extends AbstractStatefulView {
     this.element.querySelector('form').addEventListener('submit', this.#onFormSubmit);
     this.element.querySelector('fieldset').addEventListener('change', this.#onPointTypeChange);
     this.element.querySelector('.event__input').addEventListener('change', this.#onDestinationChange);
+    this.element.querySelector('.event__available-offers')?.addEventListener('change', this.#onOffersChange);
+
+    this.element.querySelector('.event__input--price').addEventListener('change', this.#onPriceChange);
+
     this.element.querySelector('.event__rollup-btn')?.addEventListener('click', this.#onFormClose);
     this.element.querySelector('.event__reset-btn')?.addEventListener('click', this._state.id ? this.#onPointDelete : this.#onFormClose);
 
@@ -201,12 +205,32 @@ export default class EditingFormView extends AbstractStatefulView {
     });
   };
 
+  #onOffersChange = (event) => {
+    const { dataset: { offerId }, checked } = event.target;
+
+    const offers = checked
+      ? [...this._state.offers, offerId]
+      : this._state.offers.filter((existingOfferId) => existingOfferId !== offerId);
+
+    this.updateElement({
+      offers,
+    });
+  };
+
+  #onPriceChange = (event) => {
+    event.preventDefault();
+
+    this._setState({basePrice: Number(event.target.value)});
+  };
+
   #onDestinationChange = (event) => {
     event.preventDefault();
     const destinationName = event.target.value;
+    const destination = this.#destinations.find((pointDestination) => pointDestination.name === destinationName);
+    const destinationId = destination ? destination.id : null;
 
     this.updateElement({
-      destination: this.#destinations.find((destination) => destination.name === destinationName)?.id || null,
+      destination: destinationId,
     });
   };
 

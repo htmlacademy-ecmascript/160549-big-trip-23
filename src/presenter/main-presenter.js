@@ -144,6 +144,7 @@ export default class MainPresenter {
   };
 
   #onModeChange = () => {
+    this.#newPointPresenter.destroy();
     this.#pointPresenters.forEach((presenter) => presenter.resetView());
   };
 

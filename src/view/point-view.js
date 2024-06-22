@@ -13,7 +13,7 @@ function createPointTemplate(point, destinations, offers) {
   const pointOffers = currentTypeOffers.filter((offer) => pointOffersIds.has(offer.id));
 
   const pointDestination = destinations.find((destination) => destination.id === point.destination) || {};
-  const {name} = pointDestination;
+  const {name = ''} = pointDestination;
 
   const favoriteClassName = isFavorite ? 'event__favorite-btn--active' : '';
 
