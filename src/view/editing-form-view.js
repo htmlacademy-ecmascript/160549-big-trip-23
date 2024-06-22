@@ -34,7 +34,7 @@ function createOfferSelector(offer, isChecked = false) {
   `;
 }
 function createCreationFormTemplate(point, allDestinations, allOffers) {
-  const {id, basePrice, type, dateFrom, dateTo, typeOffers = [], destination} = point;
+  const {id, basePrice, type, dateFrom, dateTo, typeOffers = [], destination = {}} = point;
   const {name: destinationName = '', description: destinationDescription = '', pictures} = destination;
 
   const pointId = id || '0';
@@ -127,18 +127,20 @@ export default class EditingFormView extends AbstractStatefulView {
   #destinations = null;
   #offers = null;
   #datepicker = null;
-  #handleClose = null;
-  #handleSubmit = null;
+  #handleFormClose = null;
+  #handleFormSubmit = null;
+  #handlePointDelete = null;
 
-  constructor({point, destinations, offers, onFormClose, onFormSubmit}) {
+  constructor({point, destinations, offers, onFormClose, onPointDelete, onFormSubmit}) {
     super();
     this._setState(EditingFormView.parsePointToState(point, destinations, offers));
 
     this.#destinations = destinations;
     this.#offers = offers;
 
-    this.#handleClose = onFormClose;
-    this.#handleSubmit = onFormSubmit;
+    this.#handleFormClose = onFormClose;
+    this.#handleFormSubmit = onFormSubmit;
+    this.#handlePointDelete = onPointDelete;
 
     this._restoreHandlers();
   }
@@ -148,11 +150,11 @@ export default class EditingFormView extends AbstractStatefulView {
   }
 
   _restoreHandlers() {
-    this.element.querySelector('form').addEventListener('submit', this.#onSubmit);
+    this.element.querySelector('form').addEventListener('submit', this.#onFormSubmit);
     this.element.querySelector('fieldset').addEventListener('change', this.#onPointTypeChange);
     this.element.querySelector('.event__input').addEventListener('change', this.#onDestinationChange);
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#onClose);
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#onClose);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#onFormClose);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this._state.id ? this.#onPointDelete : this.#onFormClose);
 
     this.#setDatepickerFrom();
     this.#setDatepickerTo();
@@ -170,14 +172,19 @@ export default class EditingFormView extends AbstractStatefulView {
     this.updateElement(EditingFormView.parsePointToState(point));
   }
 
-  #onClose = (event) => {
+  #onFormClose = (event) => {
     event.preventDefault();
-    this.#handleClose?.();
+    this.#handleFormClose?.();
   };
 
-  #onSubmit = (event) => {
+  #onPointDelete = (event) => {
     event.preventDefault();
-    this.#handleSubmit?.(EditingFormView.parseStateToPoint(this._state));
+    this.#handlePointDelete?.();
+  };
+
+  #onFormSubmit = (event) => {
+    event.preventDefault();
+    this.#handleFormSubmit?.(EditingFormView.parseStateToPoint(this._state));
   };
 
   #onPointTypeChange = (event) => {
@@ -186,6 +193,7 @@ export default class EditingFormView extends AbstractStatefulView {
 
     this.updateElement({
       type: event.target.value,
+      offers: [],
       typeOffers: this.#offers?.find((offer) => offer.type === pointType)?.offers || []
     });
   };
@@ -238,7 +246,7 @@ export default class EditingFormView extends AbstractStatefulView {
     );
   };
 
-  static parsePointToState(point, destinations, offers) {
+  static parsePointToState(point, destinations = [], offers = []) {
     return {
       ...point,
       destination: destinations.find((destination) => destination.id === point.destination) || {},

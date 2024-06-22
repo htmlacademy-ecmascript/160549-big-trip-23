@@ -2,6 +2,7 @@ import {render, replace, remove} from '../framework/render';
 import PointView from '../view/point-view';
 import EditingFormView from '../view/editing-form-view';
 import {UpdateType, UserAction} from '../constants';
+import {isDatesEqual} from '../utils/formatDate';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -37,6 +38,7 @@ export default class PointPresenter {
       destinations,
       offers,
       onFormClose: this.#switchToViewMode,
+      onPointDelete: this.#onPointDelete,
       onFormSubmit: this.#onFormSubmit
     });
     this.#pointComponent = new PointView({point, destinations, offers, onEditClick: this.#switchToEditMode, onToggleFavorite: this.#onFavoriteToggle});
@@ -96,8 +98,15 @@ export default class PointPresenter {
     this.#onPointChange?.(UserAction.UPDATE_POINT, UpdateType.MINOR, {...this.#point, isFavorite: !this.#point.isFavorite});
   };
 
+  #onPointDelete = () => {
+    this.#onPointChange?.(UserAction.DELETE_POINT, UpdateType.MAJOR, {...this.#point});
+  };
+
   #onFormSubmit = (point) => {
-    this.#onPointChange?.(UserAction.UPDATE_POINT, UpdateType.MINOR, point);
+    const isMinorChanges = !isDatesEqual(point.dateFrom, this.#point.dateFrom);
+    const currentUpdateType = isMinorChanges ? UpdateType.MINOR : UpdateType.PATCH;
+
+    this.#onPointChange?.(UserAction.UPDATE_POINT, currentUpdateType, point);
     this.#switchToViewMode();
   };
 }
