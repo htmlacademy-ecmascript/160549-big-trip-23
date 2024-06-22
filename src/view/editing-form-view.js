@@ -3,6 +3,7 @@ import {makeFirstLetterInUpperCase} from '../utils/makeFirstLetterInUpperCase';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
+import {DEFAULT_POINT} from '../constants';
 
 function createEventTypeItem({id, type, isChecked = false}) {
   return `
@@ -33,9 +34,13 @@ function createOfferSelector(offer, isChecked = false) {
     </div>
   `;
 }
-function createCreationFormTemplate(point, allDestinations, allOffers) {
-  const {id, basePrice, type, dateFrom, dateTo, typeOffers = [], destination = {}} = point;
-  const {name: destinationName = '', description: destinationDescription = '', pictures} = destination;
+function createCreationFormTemplate(point, destinations, offers) {
+  const {id, basePrice, type, dateFrom, dateTo} = point;
+
+  const pointDestination = destinations.find((destination) => destination.id === point.destination) || {};
+  const typeOffers = offers.find((offer) => offer.type === point.type)?.offers || [];
+
+  const {name: destinationName = '', description: destinationDescription = '', pictures} = pointDestination;
 
   const pointId = id || '0';
 
@@ -53,7 +58,7 @@ function createCreationFormTemplate(point, allDestinations, allOffers) {
             <div class="event__type-list">
               <fieldset class="event__type-group">
                 <legend class="visually-hidden">Event type</legend>
-                ${allOffers.map((offer) => createEventTypeItem({id: pointId, type: offer.type, isChecked: offer.type === type})).join('')}
+                ${offers.map((offer) => createEventTypeItem({id: pointId, type: offer.type, isChecked: offer.type === type})).join('')}
               </fieldset>
             </div>
           </div>
@@ -64,7 +69,7 @@ function createCreationFormTemplate(point, allDestinations, allOffers) {
             </label>
             <input class="event__input  event__input--destination" id="event-destination-${pointId}" type="text" name="event-destination" value="${destinationName}" list="destination-list-${pointId}">
             <datalist id="destination-list-${pointId}">
-              ${allDestinations.map(({name}) => createDestinationOption(name)).join('')}
+              ${destinations.map(({name}) => createDestinationOption(name)).join('')}
             </datalist>
           </div>
 
@@ -131,7 +136,7 @@ export default class EditingFormView extends AbstractStatefulView {
   #handleFormSubmit = null;
   #handlePointDelete = null;
 
-  constructor({point, destinations, offers, onFormClose, onPointDelete, onFormSubmit}) {
+  constructor({point = DEFAULT_POINT, destinations, offers, onFormClose, onPointDelete, onFormSubmit}) {
     super();
     this._setState(EditingFormView.parsePointToState(point, destinations, offers));
 
@@ -153,8 +158,8 @@ export default class EditingFormView extends AbstractStatefulView {
     this.element.querySelector('form').addEventListener('submit', this.#onFormSubmit);
     this.element.querySelector('fieldset').addEventListener('change', this.#onPointTypeChange);
     this.element.querySelector('.event__input').addEventListener('change', this.#onDestinationChange);
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#onFormClose);
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this._state.id ? this.#onPointDelete : this.#onFormClose);
+    this.element.querySelector('.event__rollup-btn')?.addEventListener('click', this.#onFormClose);
+    this.element.querySelector('.event__reset-btn')?.addEventListener('click', this._state.id ? this.#onPointDelete : this.#onFormClose);
 
     this.#setDatepickerFrom();
     this.#setDatepickerTo();
@@ -189,12 +194,10 @@ export default class EditingFormView extends AbstractStatefulView {
 
   #onPointTypeChange = (event) => {
     event.preventDefault();
-    const pointType = event.target.value;
 
     this.updateElement({
       type: event.target.value,
       offers: [],
-      typeOffers: this.#offers?.find((offer) => offer.type === pointType)?.offers || []
     });
   };
 
@@ -203,7 +206,7 @@ export default class EditingFormView extends AbstractStatefulView {
     const destinationName = event.target.value;
 
     this.updateElement({
-      destination: this.#destinations?.find((destination) => destination.name === destinationName) || {}
+      destination: this.#destinations.find((destination) => destination.name === destinationName)?.id || null,
     });
   };
 
@@ -246,19 +249,11 @@ export default class EditingFormView extends AbstractStatefulView {
     );
   };
 
-  static parsePointToState(point, destinations = [], offers = []) {
-    return {
-      ...point,
-      destination: destinations.find((destination) => destination.id === point.destination) || {},
-      typeOffers: offers.find((offer) => offer.type === point.type)?.offers || [],
-    };
+  static parsePointToState(point) {
+    return {...point};
   }
 
   static parseStateToPoint(state) {
-    state.destination = state.destination.id;
-
-    delete state.typeOffers;
-
-    return state;
+    return {...state};
   }
 }

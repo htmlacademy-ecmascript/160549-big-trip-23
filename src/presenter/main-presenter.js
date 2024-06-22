@@ -1,15 +1,17 @@
 import {remove, render, RenderPosition} from '../framework/render';
-import SortingView from '../view/sorting-view';
 
 import PointsListView from '../view/points-list-view';
 import EmptyPointsListView from '../view/empty-points-list-view';
-import {SortType, UpdateType, UserAction} from '../constants';
+import SortingView from '../view/sorting-view';
 import PointPresenter from './point-presenter';
+import {FilterType, SortType, UpdateType, UserAction} from '../constants';
+import NewPointPresenter from './new-point-presenter';
 import {sortPointsByType} from '../utils/point';
 import {filter} from '../utils/filter';
 
 export default class MainPresenter {
   #mainContainer = null;
+  #newPointButton = null;
   #pointsModel = null;
   #filterModel = null;
 
@@ -20,14 +22,25 @@ export default class MainPresenter {
   #pointsListComponent = new PointsListView();
 
   #pointPresenters = new Map();
+  #newPointPresenter = null;
 
-  constructor({mainContainer, pointsModel, filterModel}) {
+  constructor({mainContainer, newPointButton, pointsModel, filterModel}) {
     this.#mainContainer = mainContainer;
+    this.#newPointButton = newPointButton;
+
     this.#pointsModel = pointsModel;
     this.#filterModel = filterModel;
 
     this.#pointsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
+
+    this.#newPointButton.addEventListener('click', this.#handleAddNewPointButtonClick);
+
+    this.#newPointPresenter = new NewPointPresenter({
+      pointListContainer: this.#pointsListComponent.element,
+      handlePointChange: this.#handleViewAction,
+      handleDestroy: () => this.#onNewPointButtonToggleDisabled(false),
+    });
   }
 
   get points() {
@@ -88,6 +101,7 @@ export default class MainPresenter {
   }
 
   #clearMain({resetSortType = false} = {}) {
+    this.#newPointPresenter.destroy();
     this.#pointPresenters.forEach((presenter) => presenter.destroy());
     this.#pointPresenters.clear();
 
@@ -145,5 +159,20 @@ export default class MainPresenter {
   #sortPoints = (value) => {
     sortPointsByType(this.points, value);
     this.#activeSortType = value;
+  };
+
+  #createPoint() {
+    this.#activeSortType = SortType.DAY;
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this.#newPointPresenter.init(this.destinations, this.offers);
+  }
+
+  #onNewPointButtonToggleDisabled = (isDisabled) => {
+    this.#newPointButton.disabled = isDisabled;
+  };
+
+  #handleAddNewPointButtonClick = () => {
+    this.#createPoint();
+    this.#onNewPointButtonToggleDisabled(true);
   };
 }
