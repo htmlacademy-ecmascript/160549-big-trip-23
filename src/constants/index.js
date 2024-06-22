@@ -2,7 +2,7 @@ export const DEFAULT_POINT = {
   basePrice: 0,
   dateFrom: new Date().toISOString(),
   dateTo: new Date().toISOString(),
-  destination: '0',
+  destination: null,
   isFavorite: false,
   offers: [],
   type: 'flight'
@@ -28,4 +28,16 @@ export const SortType = {
   TIME: 'time',
   PRICE: 'price',
   OFFERS: 'offers',
+};
+
+export const UserAction = {
+  UPDATE_POINT: 'UPDATE_POINT',
+  ADD_POINT: 'ADD_POINT',
+  DELETE_POINT: 'DELETE_POINT',
+};
+
+export const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
 };

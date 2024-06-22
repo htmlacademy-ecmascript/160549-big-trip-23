@@ -32,6 +32,15 @@ const isDateAfter = (date1, date2) => dayjs(date1).isAfter(dayjs(date2));
 
 const getDateDiff = (date1, date2) => dayjs(date1).diff(date2);
 
+const isDatesEqual = (date1, date2) => dayjs(date1).isSame(date2);
+
 export {
-  getFullDate, getFullDateTime, getDayMonth, getTime, getDurationTime, isDateAfter, getDateDiff
+  getFullDate,
+  getFullDateTime,
+  getDayMonth,
+  getTime,
+  getDurationTime,
+  isDateAfter,
+  getDateDiff,
+  isDatesEqual
 };
