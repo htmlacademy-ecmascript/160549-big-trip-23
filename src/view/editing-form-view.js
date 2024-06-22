@@ -1,6 +1,7 @@
 import {getFullDateTime} from '../utils/formatDate';
 import {makeFirstLetterInUpperCase} from '../utils/makeFirstLetterInUpperCase';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
+import he from 'he';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import {DEFAULT_POINT} from '../constants';
@@ -67,7 +68,7 @@ function createCreationFormTemplate(point, destinations, offers) {
             <label class="event__label  event__type-output" for="event-destination-1">
               ${type}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-${pointId}" type="text" name="event-destination" value="${destinationName}" list="destination-list-${pointId}">
+            <input class="event__input  event__input--destination" id="event-destination-${pointId}" type="text" name="event-destination" value="${he.encode(destinationName)}" list="destination-list-${pointId}">
             <datalist id="destination-list-${pointId}">
               ${destinations.map(({name}) => createDestinationOption(name)).join('')}
             </datalist>
@@ -86,7 +87,7 @@ function createCreationFormTemplate(point, destinations, offers) {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-${pointId}" type="text" name="event-price" value="${basePrice}">
+            <input class="event__input  event__input--price" id="event-price-${pointId}" type="text" name="event-price" value="${he.encode(basePrice.toString())}">
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
