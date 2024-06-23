@@ -1,7 +1,7 @@
 const DEFAULT_POINT = {
   basePrice: 0,
-  dateFrom: new Date().toISOString(),
-  dateTo: new Date().toISOString(),
+  dateFrom: new Date(),
+  dateTo: new Date(),
   destination: null,
   isFavorite: false,
   offers: [],
@@ -52,6 +52,7 @@ const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
+  INIT: 'INIT'
 };
 
 export {

@@ -237,13 +237,13 @@ export default class EditingFormView extends AbstractStatefulView {
 
   #onDateFromChange = ([dateFrom]) => {
     this.updateElement({
-      dateFrom: dateFrom.toISOString(),
+      dateFrom: dateFrom,
     });
   };
 
   #onDateToChange = ([dateTo]) => {
     this.updateElement({
-      dateTo: dateTo.toISOString(),
+      dateTo: dateTo,
     });
   };
 

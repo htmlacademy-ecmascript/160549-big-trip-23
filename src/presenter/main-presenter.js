@@ -3,6 +3,7 @@ import {remove, render, RenderPosition} from '../framework/render';
 import PointsListView from '../view/points-list-view';
 import EmptyPointsListView from '../view/empty-points-list-view';
 import SortingView from '../view/sorting-view';
+import LoadingView from '../view/loading-view';
 import PointPresenter from './point-presenter';
 import {FilterType, SortType, UpdateType, UserAction} from '../constants';
 import NewPointPresenter from './new-point-presenter';
@@ -16,10 +17,12 @@ export default class MainPresenter {
   #filterModel = null;
 
   #activeSortType = SortType.DAY;
+  #isLoading = true;
 
   #sortingComponent = null;
   #emptyPointsListComponent = null;
   #pointsListComponent = new PointsListView();
+  #loadingComponent = new LoadingView();
 
   #pointPresenters = new Map();
   #newPointPresenter = null;
@@ -89,8 +92,17 @@ export default class MainPresenter {
     render(this.#sortingComponent, this.#mainContainer, RenderPosition.AFTERBEGIN);
   }
 
+  #renderLoading() {
+    render(this.#loadingComponent, this.#mainContainer);
+  }
+
   #renderMain() {
     render(this.#pointsListComponent, this.#mainContainer);
+
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
 
     if (!this.points.length) {
       return this.#renderNoPoints();
@@ -106,7 +118,11 @@ export default class MainPresenter {
     this.#pointPresenters.clear();
 
     remove(this.#sortingComponent);
-    remove(this.#emptyPointsListComponent);
+    remove(this.#loadingComponent);
+
+    if (this.#emptyPointsListComponent) {
+      remove(this.#emptyPointsListComponent);
+    }
 
     if (resetSortType) {
       this.#activeSortType = SortType.DAY;
@@ -138,6 +154,11 @@ export default class MainPresenter {
         break;
       case UpdateType.MAJOR:
         this.#clearMain({resetFilterType: true, resetSortType: true});
+        this.#renderMain();
+        break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
         this.#renderMain();
         break;
     }
