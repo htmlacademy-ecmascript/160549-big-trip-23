@@ -40,15 +40,22 @@ export default class PointsModel extends Observable {
     this._notify(UpdateType.INIT);
   }
 
-  updatePoint(type, updatedPoint) {
-    this.#points = this.#points.map((point) => {
-      if (point.id === updatedPoint.id) {
-        return updatedPoint;
-      }
-      return point;
-    });
+  async updatePoint(type, updatedPoint) {
+    try {
+      const response = await this.#pointsApiService.updatePoint(updatedPoint);
+      const adaptedPoint = this.#adaptToClient(response);
 
-    this._notify(type, updatedPoint);
+      this.#points = this.#points.map((point) => {
+        if (point.id === adaptedPoint.id) {
+          return adaptedPoint;
+        }
+        return point;
+      });
+
+      this._notify(type, adaptedPoint);
+    } catch (e) {
+      throw new Error('Can\'t update point');
+    }
   }
 
   addPoint(type, updatedPoint) {
