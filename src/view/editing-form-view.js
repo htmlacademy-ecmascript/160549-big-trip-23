@@ -251,6 +251,7 @@ export default class EditingFormView extends AbstractStatefulView {
     this.#datepicker = flatpickr(
       this.element.querySelector('[name="event-start-time"]'),
       {
+        maxDate: this._state.dateTo,
         dateFrom: this._state.dateFrom,
         dateFormat: 'd/m/y h:i',
         enableTime: true,

@@ -13,7 +13,7 @@ export const mockPoints = [
     id: '2',
     basePrice: 2610,
     dateFrom: '2024-06-12T04:01:56.845Z',
-    dateTo: '2024-07-12T04:53:13.375Z',
+    dateTo: '2024-07-10T04:53:13.375Z',
     destination: '3',
     isFavorite: true,
     offers: ['12','10'],
