@@ -60,7 +60,8 @@ export default class PointPresenter {
     }
 
     if (this.#mode === Mode.EDITING) {
-      replace(this.#editingPointFormComponent, prevEditingPointFormComponent);
+      replace(this.#pointComponent, prevEditingPointFormComponent);
+      this.#mode = Mode.DEFAULT;
     }
 
     remove(prevPointComponent);
@@ -71,6 +72,7 @@ export default class PointPresenter {
   destroy() {
     remove(this.#pointComponent);
     remove(this.#editingPointFormComponent);
+    document.removeEventListener('keydown', this.#onEscapeKeydown);
   }
 
   resetView() {
@@ -93,6 +95,41 @@ export default class PointPresenter {
     this.#mode = Mode.DEFAULT;
   };
 
+  setSaving() {
+    if (this.#mode === Mode.EDITING) {
+      this.#editingPointFormComponent.updateElement({
+        isDisabled: true,
+        isSaving: true,
+      });
+    }
+  }
+
+  setDeleting() {
+    if (this.#mode === Mode.EDITING) {
+      this.#editingPointFormComponent.updateElement({
+        isDisabled: true,
+        isDeleting: true,
+      });
+    }
+  }
+
+  setAborting() {
+    if (this.#mode === Mode.DEFAULT) {
+      this.#pointComponent.shake();
+      return;
+    }
+
+    const resetFormState = () => {
+      this.#editingPointFormComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#editingPointFormComponent.shake(resetFormState);
+  }
+
   #onEscapeKeydown = (event) => {
     if (event.key === 'Escape') {
       this.#editingPointFormComponent.reset(this.#point);
@@ -112,6 +149,5 @@ export default class PointPresenter {
     const currentUpdateType = isMinorChanges(this.#point, point) ? UpdateType.MINOR : UpdateType.PATCH;
 
     this.#onPointChange?.(UserAction.UPDATE_POINT, currentUpdateType, point);
-    this.#switchToViewMode();
   };
 }

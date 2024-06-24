@@ -14,7 +14,7 @@ const DateFormat = {
   DATE: 'YYYY-MM-DD',
   TIME: 'HH:mm',
   DATE_TIME: 'DD/MM/YY HH:mm',
-  FLATPICKR_DATE: 'd/m/y H:i',
+  RANGE_DATE: 'd/m/y H:i',
   DAY: 'DD[d] HH[h] mm[m]',
   HOUR: 'HH[h] mm[m]',
   MINUTE: 'mm[m]',
@@ -55,6 +55,11 @@ const UpdateType = {
   INIT: 'INIT'
 };
 
+const LoaderTimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
+
 export {
   DEFAULT_POINT,
   DateFormat,
@@ -62,5 +67,6 @@ export {
   FilterType,
   EmptyFilterMessage,
   UserAction,
-  UpdateType
+  UpdateType,
+  LoaderTimeLimit
 };
