@@ -1,5 +1,7 @@
-const updateItem = (items, updatedItem) => items.map((item) => item.id === updatedItem.id ? updatedItem : item);
+const getIsDisabledAttribute = (isDisabled) => isDisabled ? 'disabled' : '';
+const getIsCheckedAttribute = (isDisabled) => isDisabled ? 'checked' : '';
 
 export {
-  updateItem
+  getIsDisabledAttribute,
+  getIsCheckedAttribute
 };

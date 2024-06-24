@@ -39,6 +39,25 @@ export default class NewPointPresenter {
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   }
 
+  setSaving() {
+    this.#editingFormComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.#editingFormComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#editingFormComponent.shake(resetFormState);
+  }
+
   #onFormSubmit = (point) => {
     this.#onPointChange?.(UserAction.ADD_POINT, UpdateType.MAJOR, point);
   };

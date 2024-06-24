@@ -14,7 +14,7 @@ const DateFormat = {
   DATE: 'YYYY-MM-DD',
   TIME: 'HH:mm',
   DATE_TIME: 'DD/MM/YY HH:mm',
-  FLATPICKR_DATE: 'd/m/y H:i',
+  RANGE_DATE: 'd/m/y H:i',
   DAY: 'DD[d] HH[h] mm[m]',
   HOUR: 'HH[h] mm[m]',
   MINUTE: 'mm[m]',
