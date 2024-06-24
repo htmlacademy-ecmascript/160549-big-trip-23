@@ -182,6 +182,7 @@ export default class MainPresenter {
         break;
       case UpdateType.INIT:
         this.#isLoading = false;
+        this.#onNewPointButtonToggleDisabled(false);
         remove(this.#loadingComponent);
         this.#renderMain();
         break;
