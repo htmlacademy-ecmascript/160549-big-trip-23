@@ -1,11 +1,12 @@
 import {remove, render, RenderPosition} from '../framework/render';
+import UiBlocker from '../framework/ui-blocker/ui-blocker';
 
 import PointsListView from '../view/points-list-view';
 import EmptyPointsListView from '../view/empty-points-list-view';
 import SortingView from '../view/sorting-view';
 import LoadingView from '../view/loading-view';
 import PointPresenter from './point-presenter';
-import {FilterType, SortType, UpdateType, UserAction} from '../constants';
+import {FilterType, LoaderTimeLimit, SortType, UpdateType, UserAction} from '../constants';
 import NewPointPresenter from './new-point-presenter';
 import {sortPointsByType} from '../utils/point';
 import {filter} from '../utils/filter';
@@ -23,6 +24,10 @@ export default class MainPresenter {
   #emptyPointsListComponent = null;
   #pointsListComponent = new PointsListView();
   #loadingComponent = new LoadingView();
+  #uiBlocker = new UiBlocker({
+    lowerLimit: LoaderTimeLimit.LOWER_LIMIT,
+    upperLimit: LoaderTimeLimit.UPPER_LIMIT,
+  });
 
   #pointPresenters = new Map();
   #newPointPresenter = null;
@@ -130,6 +135,8 @@ export default class MainPresenter {
   }
 
   #handleViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
+
     switch (actionType) {
       case UserAction.UPDATE_POINT:
         this.#pointPresenters.get(update.id).setSaving();
@@ -156,6 +163,8 @@ export default class MainPresenter {
         }
         break;
     }
+
+    this.#uiBlocker.unblock();
   };
 
   #handleModelEvent = (updateType, data) => {

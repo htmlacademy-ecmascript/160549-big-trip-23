@@ -55,6 +55,11 @@ const UpdateType = {
   INIT: 'INIT'
 };
 
+const LoaderTimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
+
 export {
   DEFAULT_POINT,
   DateFormat,
@@ -62,5 +67,6 @@ export {
   FilterType,
   EmptyFilterMessage,
   UserAction,
-  UpdateType
+  UpdateType,
+  LoaderTimeLimit
 };
