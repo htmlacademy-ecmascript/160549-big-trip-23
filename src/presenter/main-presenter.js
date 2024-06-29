@@ -5,6 +5,7 @@ import PointsListView from '../view/points-list-view';
 import EmptyPointsListView from '../view/empty-points-list-view';
 import SortingView from '../view/sorting-view';
 import LoadingView from '../view/loading-view';
+import FailedLoadDataView from '../view/failed-load-data-view';
 import PointPresenter from './point-presenter';
 import {FilterType, LoaderTimeLimit, SortType, UpdateType, UserAction} from '../constants';
 import NewPointPresenter from './new-point-presenter';
@@ -19,11 +20,13 @@ export default class MainPresenter {
 
   #activeSortType = SortType.DAY;
   #isLoading = true;
+  #isLoadingError = false;
 
   #sortingComponent = null;
   #emptyPointsListComponent = null;
   #pointsListComponent = new PointsListView();
   #loadingComponent = new LoadingView();
+  #failedDataLoadingComponent = new FailedLoadDataView();
   #uiBlocker = new UiBlocker({
     lowerLimit: LoaderTimeLimit.LOWER_LIMIT,
     upperLimit: LoaderTimeLimit.UPPER_LIMIT,
@@ -101,11 +104,20 @@ export default class MainPresenter {
     render(this.#loadingComponent, this.#mainContainer);
   }
 
+  #renderError() {
+    render(this.#failedDataLoadingComponent, this.#mainContainer);
+  }
+
   #renderMain() {
     render(this.#pointsListComponent, this.#mainContainer);
 
     if (this.#isLoading) {
       this.#renderLoading();
+      return;
+    }
+
+    if (this.#isLoadingError) {
+      this.#renderError();
       return;
     }
 
@@ -182,9 +194,14 @@ export default class MainPresenter {
         break;
       case UpdateType.INIT:
         this.#isLoading = false;
-        this.#onNewPointButtonToggleDisabled(false);
+        if (!this.#isLoadingError) {
+          this.#onNewPointButtonToggleDisabled(false);
+        }
         remove(this.#loadingComponent);
         this.#renderMain();
+        break;
+      case UpdateType.ERROR:
+        this.#isLoadingError = true;
         break;
     }
   };

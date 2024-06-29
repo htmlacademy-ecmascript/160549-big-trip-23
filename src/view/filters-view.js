@@ -1,11 +1,13 @@
 import AbstractView from '../framework/view/abstract-view';
+import {getIsCheckedAttribute, getIsDisabledAttribute} from '../utils/common';
 
-function createFilterItem(filter, isActive) {
-  const isChecked = isActive ? 'checked' : '';
+function createFilterItem(filter, isActive, isDisabled) {
+  const checked = getIsCheckedAttribute(isActive);
+  const disabled = getIsDisabledAttribute(isDisabled);
 
   return (
     `<div class="trip-filters__filter">
-        <input id="filter-${filter}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="${filter}" ${isChecked}>
+        <input id="filter-${filter}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="${filter}" ${checked} ${disabled}>
         <label class="trip-filters__filter-label" for="filter-${filter}">${filter}</label>
       </div>`
   );
@@ -15,7 +17,7 @@ function createFiltersTemplate(filters, currentFilterType) {
 
   return (
     `<form class="trip-filters" action="#" method="get">
-     ${filters.map((filter) => createFilterItem(filter, filter === currentFilterType)).join('')}
+     ${filters.map(({filterType, isDisabled}) => createFilterItem(filterType, filterType === currentFilterType, isDisabled)).join('')}
 
       <button class="visually-hidden" type="submit">Accept filter</button>
     </form>`

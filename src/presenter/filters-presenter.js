@@ -1,6 +1,7 @@
 import {render, remove, replace} from '../framework/render';
 import {FilterType, UpdateType} from '../constants';
 import FiltersView from '../view/filters-view';
+import {filter} from '../utils/filter';
 
 export default class FiltersPresenter {
   #filterContainer = null;
@@ -19,7 +20,10 @@ export default class FiltersPresenter {
   }
 
   get filters() {
-    return Object.values(FilterType).map((type) => type);
+    return Object.values(FilterType).map((type) => ({
+      filterType: type,
+      isDisabled: !filter[type](this.#pointsModel.points).length,
+    }));
   }
 
   init() {
